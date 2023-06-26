@@ -1,11 +1,12 @@
 "use client";
-import { ILoginDto, useLogin } from "@/hooks/useLogin";
-import styles from "./page.module.css";
+import styles from "../page.module.css";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { ICreateUserDto, useRegister } from "@/hooks/useRegister";
 
 const schema = yup.object().shape({
+  name: yup.string().required("Nome é obrigatório"),
   email: yup
     .string()
     .email("Email inválido, por favor digite um email válido")
@@ -13,22 +14,30 @@ const schema = yup.object().shape({
   password: yup.string().required("Senha é obrigatória"),
 });
 
-export default function AuthPage() {
-  const { login, loading, error } = useLogin();
-  const formMethods = useForm<ILoginDto>({
+export default function RegisterPage() {
+  const { register, loading, error } = useRegister();
+  const formMethods = useForm<ICreateUserDto>({
     mode: "all",
     resolver: yupResolver(schema),
   });
 
   const errorEmail = formMethods.formState.errors.email?.message;
   const errorPassword = formMethods.formState.errors.password?.message;
+  const errorName = formMethods.formState.errors.name?.message;
 
   return (
     <main className={styles.main}>
       <FormProvider {...formMethods}>
-        <form onSubmit={formMethods.handleSubmit(login)}>
+        <form onSubmit={formMethods.handleSubmit(register)}>
           <div className={styles.div_login}>
-            <h1 className={styles.title_login}>Login</h1>
+            <h1 className={styles.title_login}>Criar conta</h1>
+            <input
+              placeholder="Nome"
+              className={styles.input}
+              {...formMethods.register("name")}
+            />
+            {errorName && <p className={styles.error_input}>{errorName}</p>}
+
             <input
               placeholder="Email"
               className={styles.input}
@@ -48,12 +57,12 @@ export default function AuthPage() {
 
             {error && (
               <div className={styles.error_container}>
-                <p>Ocorreu um erro ao fazer login, tente novamente</p>
+                <p>Ocorreu um erro ao criar uma conta</p>
               </div>
             )}
 
-            <a href="/register" className={styles.link}>
-              Não tem uma conta? Cadastre-se
+            <a className={styles.link} href="/">
+              Já tem uma conta? Faça login
             </a>
 
             <button type="submit" className={styles.button}>
